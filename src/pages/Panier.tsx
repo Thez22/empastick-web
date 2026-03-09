@@ -172,7 +172,7 @@ export default function Panier() {
                 <p className="text-cta font-semibold mt-1">{formatPrice(item.basePrice * item.quantity)}</p>
               </div>
               <div className="flex items-center gap-2">
-                <button type="button" onClick={() => handleQty(index, -1)} className="w-8 h-8 rounded border border-border-soft flex items-center justify-center">âˆ’</button>
+                <button type="button" onClick={() => handleQty(index, -1)} className="w-8 h-8 rounded border border-border-soft flex items-center justify-center" aria-label="Diminuer la quantité">-</button>
                 <span className="w-8 text-center font-medium">{item.quantity}</span>
                 <button type="button" onClick={() => handleQty(index, 1)} className="w-8 h-8 rounded border border-border-soft flex items-center justify-center">+</button>
               </div>
@@ -198,7 +198,7 @@ export default function Panier() {
             </svg>
           </button>
           <p className="text-xs text-text-muted mt-3 flex items-center gap-1">
-            <span className="inline-block w-4 h-4">ðŸ”’</span> Paiement sécurisé
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 shrink-0" aria-hidden><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg> Paiement sécurisé
           </p>
         </div>
       </div>
@@ -207,9 +207,9 @@ export default function Panier() {
         <>
           <div className="fixed inset-0 bg-black/50 z-[100]" onClick={() => !paying && setModalOpen(false)} />
           <div className="fixed inset-4 md:inset-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:max-w-lg md:max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-xl z-[101] p-6">
-            <button type="button" onClick={() => !paying && setModalOpen(false)} disabled={paying} className="absolute top-4 right-4 text-text-muted hover:text-[#1a1d21] disabled:opacity-50" aria-label="Fermer">âœ•</button>
+            <button type="button" onClick={() => !paying && setModalOpen(false)} disabled={paying} className="absolute top-4 right-4 text-text-muted hover:text-[#1a1d21] disabled:opacity-50 text-xl leading-none" aria-label="Fermer">×</button>
             <h2 className="text-xl font-semibold mb-1">Finaliser votre commande</h2>
-            <p className="text-sm text-text-muted mb-4">Paiement sécurisé â€“ Simulation</p>
+            <p className="text-sm text-text-muted mb-4">Paiement sécurisé – Simulation</p>
 
             {paymentError && <div className="mb-4 p-3 rounded-lg bg-red-50 text-red-700 text-sm" role="alert">{paymentError}</div>}
 
