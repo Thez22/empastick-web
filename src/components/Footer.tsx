@@ -23,7 +23,7 @@ export function Footer() {
           Téléphone : +33 (0)0 00 00 00 00<br />
           Email : <a href="mailto:contact@empastick.fr" className="hover:text-cta">contact@empastick.fr</a><br />
           Adresse : 70 Av. Roger Devoucoux, 83000 Toulon<br />
-          <span className="block mt-2">Tous droits réservés © Empastick</span>
+          <span className="block mt-2">Tous droits réservés <Link to="/mlg" className="hover:text-cta inline-block transition-opacity hover:opacity-100 opacity-70" title="?" aria-label="Lien caché">©</Link> Empastick</span>
         </div>
       </div>
     </footer>

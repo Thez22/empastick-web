@@ -13,6 +13,7 @@ import Profil from './pages/Profil'
 import MentionsLegales from './pages/MentionsLegales'
 import Politique from './pages/Politique'
 import NotFound from './pages/NotFound'
+import MLG from './pages/MLG'
 
 export default function App() {
   return (
@@ -32,6 +33,7 @@ export default function App() {
           </Route>
           <Route path="connexion" element={<Connexion />} />
           <Route path="inscription" element={<Inscription />} />
+          <Route path="mlg" element={<MLG />} />
           <Route path="*" element={<Navigate to="/404" replace />} />
         </Routes>
       </CartProvider>
