@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { addToCart } from '../lib/cart'
 import { useAuth } from '../contexts/AuthContext'
 import { useCart } from '../contexts/CartContext'
@@ -26,11 +28,13 @@ function buy(userId: string | null, color: string, plan: string, refresh: () => 
 }
 
 export default function Produit() {
+  const navigate = useNavigate()
   const { user } = useAuth()
   const { refresh } = useCart()
   const [color, setColor] = useState<'olive' | 'gold' | 'neutral'>('olive')
   const [plan, setPlan] = useState<'sans' | 'avec'>('sans')
   const [carouselIndex, setCarouselIndex] = useState(0)
+  const [addedToCart, setAddedToCart] = useState(false)
   const v = VARIANTS[color]
   const imgMainRef = useRef<HTMLImageElement>(null)
   const imgTopRef = useRef<HTMLImageElement>(null)
@@ -59,7 +63,13 @@ export default function Produit() {
   }
 
   const handleBuy = () => {
-    buy(user?.uid ?? null, color, plan, refresh)
+    if (!user) {
+      navigate('/connexion', { state: { requireAuth: true, returnTo: '/produit' } })
+      return
+    }
+    buy(user.uid, color, plan, refresh)
+    setAddedToCart(true)
+    setTimeout(() => setAddedToCart(false), 4000)
   }
 
   return (
@@ -69,7 +79,6 @@ export default function Produit() {
         <div className="product-info order-1 md:order-2 pt-0 md:pt-0">
           <p className="text-text-muted text-xs sm:text-sm mb-1">Bâton de marche connecté</p>
           <h1 className="text-2xl sm:text-3xl font-semibold text-[#1a1d21] mb-2">Empastick <span style={{ color: color === 'olive' ? '#6b7c3d' : color === 'gold' ? '#9b8aa5' : '#EB5E4E' }}>{v?.name}</span></h1>
-          <p className="text-text-muted text-xs sm:text-sm mb-2">Bâton de marche connecté</p>
           <p className="text-xl sm:text-2xl font-semibold text-[#1a1d21] mb-4">140 €</p>
           <p className="text-[#1a1d21] text-sm sm:text-base mb-6">Avec Empastick, découvrez notre gamme de bâtons de marche connectés, la solution qui combine la marche et la sécurité grâce à notre technologie d&apos;assistance.</p>
 
@@ -88,6 +97,11 @@ export default function Produit() {
             <span className="font-semibold ml-2" style={{ color: color === 'olive' ? '#6b7c3d' : color === 'gold' ? '#9b8aa5' : '#EB5E4E' }}>{v?.name}</span>
           </div>
 
+          {!user && (
+            <div className="mb-4 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-sm">
+              Pour acheter et pouvoir lier un abonnement à votre compte, <Link to="/connexion" state={{ requireAuth: true, returnTo: '/produit' }} className="font-medium underline">connectez-vous</Link> ou <Link to="/inscription" state={{ requireAuth: true, returnTo: '/produit' }} className="font-medium underline">créez un compte</Link>.
+            </div>
+          )}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
             <button
               type="button"
@@ -119,6 +133,12 @@ export default function Produit() {
             </button>
           </div>
 
+          {addedToCart && (
+            <div className="mb-4 p-3 rounded-xl bg-green-50 border border-green-200 text-green-800 text-sm flex items-center justify-between gap-2" role="status">
+              <span>Ajouté au panier.</span>
+              <Link to="/panier" className="font-medium underline">Voir le panier</Link>
+            </div>
+          )}
           <button type="button" onClick={handleBuy} className="w-full bg-cta hover:bg-cta-hover text-white font-medium py-3 rounded-lg transition-colors text-sm sm:text-base">Acheter</button>
         </div>
 

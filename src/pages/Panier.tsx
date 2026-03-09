@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '../lib/firebase'
 import { removeFromCart, updateQuantity, clearCart } from '../lib/cart'
@@ -13,10 +13,13 @@ function formatPrice(n: number) {
 }
 
 export default function Panier() {
+  const navigate = useNavigate()
   const { user } = useAuth()
   const { items, loading, refresh } = useCart()
   const [modalOpen, setModalOpen] = useState(false)
   const [paying, setPaying] = useState(false)
+  const [paymentError, setPaymentError] = useState('')
+  const [paymentSuccess, setPaymentSuccess] = useState<{ orderNumber: string; email: string; hasSubscription: boolean; emailSent: boolean } | null>(null)
   const [paymentForm, setPaymentForm] = useState({
     firstName: '',
     lastName: '',
@@ -53,12 +56,19 @@ export default function Panier() {
   }
 
   function openModal() {
-    setPaymentForm((f) => ({ ...f, email: user?.email ?? f.email }))
+    if (!user) {
+      navigate('/connexion', { state: { requireAuth: true, returnTo: '/panier' } })
+      return
+    }
+    setPaymentError('')
+    setPaymentSuccess(null)
+    setPaymentForm((f) => ({ ...f, email: user.email ?? f.email }))
     setModalOpen(true)
   }
 
   async function handlePaymentSubmit(e: React.FormEvent) {
     e.preventDefault()
+    setPaymentError('')
     setPaying(true)
     try {
       const orderNumber = 'CMD-' + Date.now().toString(36).toUpperCase()
@@ -66,7 +76,7 @@ export default function Panier() {
       const deliveryAddress = `${paymentForm.address}, ${paymentForm.postalCode} ${paymentForm.city}`
       const customerName = `${paymentForm.firstName} ${paymentForm.lastName}`
 
-      await sendOrderEmail({
+      const emailResult = await sendOrderEmail({
         to_email: paymentForm.email,
         to_name: customerName,
         order_number: orderNumber,
@@ -90,16 +100,22 @@ export default function Panier() {
         status: 'confirmed',
       })
 
-      if (hasSubscription && user?.uid) await updateUserProfile(user.uid, { hasSubscription: true })
+      if (hasSubscription && user?.uid) {
+        const profileResult = await updateUserProfile(user.uid, { hasSubscription: true })
+        if (!profileResult.success) console.warn('Profil abonnement:', profileResult.error)
+      }
       await clearCart(user?.uid ?? null)
       refresh()
       setModalOpen(false)
-      alert(
-        `Commande validée !\n\nNuméro : ${orderNumber}\n\nUn email de confirmation a été envoyé à ${paymentForm.email}${hasSubscription ? '\n\nVotre compte est maintenant Premium !' : ''}`
-      )
+      setPaymentSuccess({
+        orderNumber,
+        email: paymentForm.email,
+        hasSubscription,
+        emailSent: emailResult.success,
+      })
     } catch (err) {
       console.error(err)
-      alert('Une erreur est survenue. Veuillez réessayer.')
+      setPaymentError('Une erreur est survenue. Vérifiez vos informations et réessayez.')
     } finally {
       setPaying(false)
     }
@@ -128,6 +144,22 @@ export default function Panier() {
 
   return (
     <div className="max-w-[1000px] mx-auto">
+      {paymentSuccess && (
+        <div className="mb-6 p-4 rounded-xl bg-green-50 border border-green-200 text-green-800" role="status">
+          <p className="font-semibold">Commande validée !</p>
+          <p className="text-sm mt-1">Numéro : <strong>{paymentSuccess.orderNumber}</strong></p>
+          <p className="text-sm">{paymentSuccess.emailSent ? `Un email de confirmation a été envoyé à ${paymentSuccess.email}.` : `Commande enregistrée. L’envoi de l’email à ${paymentSuccess.email} a échoué.`}</p>
+          {paymentSuccess.hasSubscription && <p className="text-sm mt-1">Votre compte est maintenant Premium.</p>}
+        </div>
+      )}
+      {!user && items.length > 0 && (
+        <div className="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-sm flex flex-wrap items-center gap-2">
+          <span>Pour valider votre commande et lier un abonnement à votre compte,</span>
+          <Link to="/connexion" state={{ requireAuth: true, returnTo: '/panier' }} className="font-medium underline">connectez-vous</Link>
+          <span>ou</span>
+          <Link to="/inscription" state={{ requireAuth: true, returnTo: '/panier' }} className="font-medium underline">créez un compte</Link>.
+        </div>
+      )}
       <div className="mb-8">
         <h1 className="text-2xl font-semibold text-[#1a1d21]">Votre panier</h1>
         <p className="text-text-muted text-sm">Révisez vos articles avant de finaliser votre commande</p>
@@ -178,38 +210,40 @@ export default function Panier() {
 
       {modalOpen && (
         <>
-          <div className="fixed inset-0 bg-black/50 z-[100]" onClick={() => setModalOpen(false)} />
+          <div className="fixed inset-0 bg-black/50 z-[100]" onClick={() => !paying && setModalOpen(false)} />
           <div className="fixed inset-4 md:inset-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:max-w-lg md:max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-xl z-[101] p-6">
-            <button type="button" onClick={() => setModalOpen(false)} className="absolute top-4 right-4 text-text-muted hover:text-[#1a1d21]" aria-label="Fermer">✕</button>
+            <button type="button" onClick={() => !paying && setModalOpen(false)} disabled={paying} className="absolute top-4 right-4 text-text-muted hover:text-[#1a1d21] disabled:opacity-50" aria-label="Fermer">✕</button>
             <h2 className="text-xl font-semibold mb-1">Finaliser votre commande</h2>
-            <p className="text-sm text-text-muted mb-6">Paiement sécurisé - Simulation</p>
+            <p className="text-sm text-text-muted mb-4">Paiement sécurisé – Simulation</p>
+
+            {paymentError && <div className="mb-4 p-3 rounded-lg bg-red-50 text-red-700 text-sm" role="alert">{paymentError}</div>}
 
             <form onSubmit={handlePaymentSubmit} className="space-y-4">
               <div>
                 <h3 className="font-medium text-sm mb-2">Informations de livraison</h3>
                 <div className="grid grid-cols-2 gap-2">
-                  <input type="text" placeholder="Prénom" required value={paymentForm.firstName} onChange={(e) => setPaymentForm((f) => ({ ...f, firstName: e.target.value }))} className="w-full px-3 py-2 border rounded-lg" />
-                  <input type="text" placeholder="Nom" required value={paymentForm.lastName} onChange={(e) => setPaymentForm((f) => ({ ...f, lastName: e.target.value }))} className="w-full px-3 py-2 border rounded-lg" />
+                  <input type="text" placeholder="Prénom" required value={paymentForm.firstName} onChange={(e) => setPaymentForm((f) => ({ ...f, firstName: e.target.value }))} disabled={paying} className="w-full px-3 py-2 border border-border-soft rounded-lg disabled:opacity-60 disabled:bg-gray-50" />
+                  <input type="text" placeholder="Nom" required value={paymentForm.lastName} onChange={(e) => setPaymentForm((f) => ({ ...f, lastName: e.target.value }))} disabled={paying} className="w-full px-3 py-2 border border-border-soft rounded-lg disabled:opacity-60 disabled:bg-gray-50" />
                 </div>
-                <input type="email" placeholder="Email" required value={paymentForm.email} onChange={(e) => setPaymentForm((f) => ({ ...f, email: e.target.value }))} className="w-full px-3 py-2 border rounded-lg mt-2" />
-                <input type="text" placeholder="Adresse" required value={paymentForm.address} onChange={(e) => setPaymentForm((f) => ({ ...f, address: e.target.value }))} className="w-full px-3 py-2 border rounded-lg mt-2" />
+                <input type="email" placeholder="Email" required value={paymentForm.email} onChange={(e) => setPaymentForm((f) => ({ ...f, email: e.target.value }))} disabled={paying} className="w-full px-3 py-2 border border-border-soft rounded-lg mt-2 disabled:opacity-60 disabled:bg-gray-50" />
+                <input type="text" placeholder="Adresse" required value={paymentForm.address} onChange={(e) => setPaymentForm((f) => ({ ...f, address: e.target.value }))} disabled={paying} className="w-full px-3 py-2 border border-border-soft rounded-lg mt-2 disabled:opacity-60 disabled:bg-gray-50" />
                 <div className="grid grid-cols-2 gap-2 mt-2">
-                  <input type="text" placeholder="Ville" required value={paymentForm.city} onChange={(e) => setPaymentForm((f) => ({ ...f, city: e.target.value }))} className="w-full px-3 py-2 border rounded-lg" />
-                  <input type="text" placeholder="Code postal" required pattern="[0-9]{5}" value={paymentForm.postalCode} onChange={(e) => setPaymentForm((f) => ({ ...f, postalCode: e.target.value }))} className="w-full px-3 py-2 border rounded-lg" />
+                  <input type="text" placeholder="Ville" required value={paymentForm.city} onChange={(e) => setPaymentForm((f) => ({ ...f, city: e.target.value }))} disabled={paying} className="w-full px-3 py-2 border border-border-soft rounded-lg disabled:opacity-60 disabled:bg-gray-50" />
+                  <input type="text" placeholder="Code postal" required pattern="[0-9]{5}" value={paymentForm.postalCode} onChange={(e) => setPaymentForm((f) => ({ ...f, postalCode: e.target.value }))} disabled={paying} className="w-full px-3 py-2 border border-border-soft rounded-lg disabled:opacity-60 disabled:bg-gray-50" />
                 </div>
               </div>
               <div>
                 <h3 className="font-medium text-sm mb-2">Informations de paiement</h3>
-                <input type="text" placeholder="Numéro de carte" required value={paymentForm.cardNumber} onChange={(e) => setPaymentForm((f) => ({ ...f, cardNumber: e.target.value }))} className="w-full px-3 py-2 border rounded-lg mb-2" />
+                <input type="text" placeholder="Numéro de carte" required value={paymentForm.cardNumber} onChange={(e) => setPaymentForm((f) => ({ ...f, cardNumber: e.target.value }))} disabled={paying} className="w-full px-3 py-2 border border-border-soft rounded-lg mb-2 disabled:opacity-60 disabled:bg-gray-50" />
                 <div className="grid grid-cols-2 gap-2">
-                  <input type="text" placeholder="MM/AA" required value={paymentForm.cardExpiry} onChange={(e) => setPaymentForm((f) => ({ ...f, cardExpiry: e.target.value }))} className="w-full px-3 py-2 border rounded-lg" />
-                  <input type="text" placeholder="CVV" required value={paymentForm.cardCVC} onChange={(e) => setPaymentForm((f) => ({ ...f, cardCVC: e.target.value }))} className="w-full px-3 py-2 border rounded-lg" />
+                  <input type="text" placeholder="MM/AA" required value={paymentForm.cardExpiry} onChange={(e) => setPaymentForm((f) => ({ ...f, cardExpiry: e.target.value }))} disabled={paying} className="w-full px-3 py-2 border border-border-soft rounded-lg disabled:opacity-60 disabled:bg-gray-50" />
+                  <input type="text" placeholder="CVV" required value={paymentForm.cardCVC} onChange={(e) => setPaymentForm((f) => ({ ...f, cardCVC: e.target.value }))} disabled={paying} className="w-full px-3 py-2 border border-border-soft rounded-lg disabled:opacity-60 disabled:bg-gray-50" />
                 </div>
-                <input type="text" placeholder="Nom sur la carte" required value={paymentForm.cardName} onChange={(e) => setPaymentForm((f) => ({ ...f, cardName: e.target.value }))} className="w-full px-3 py-2 border rounded-lg mt-2" />
+                <input type="text" placeholder="Nom sur la carte" required value={paymentForm.cardName} onChange={(e) => setPaymentForm((f) => ({ ...f, cardName: e.target.value }))} disabled={paying} className="w-full px-3 py-2 border border-border-soft rounded-lg mt-2 disabled:opacity-60 disabled:bg-gray-50" />
               </div>
               <div className="flex justify-between font-semibold py-2"><span>Total</span><span>{formatPrice(subtotal)}</span></div>
               <div className="flex gap-2">
-                <button type="button" onClick={() => setModalOpen(false)} className="flex-1 py-2 border rounded-lg">Annuler</button>
+                <button type="button" onClick={() => setModalOpen(false)} disabled={paying} className="flex-1 py-2 border border-border-soft rounded-lg disabled:opacity-50">Annuler</button>
                 <button type="submit" disabled={paying} className="flex-1 bg-cta hover:bg-cta-hover text-white py-2 rounded-lg disabled:opacity-50">
                   {paying ? 'Traitement...' : 'Payer'}
                 </button>

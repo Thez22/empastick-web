@@ -1,6 +1,9 @@
 import { useState } from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import { useHeaderScroll } from '../hooks/useHeaderScroll'
+import { useAuth } from '../contexts/AuthContext'
+import { useCart } from '../contexts/CartContext'
+import { signOut } from '../lib/auth'
 
 const navLinks = [
   { to: '/', label: 'Accueil' },
@@ -25,8 +28,19 @@ function UserIcon() {
 }
 
 export function Header() {
+  const navigate = useNavigate()
+  const { user } = useAuth()
+  const { items } = useCart()
   const [mobileOpen, setMobileOpen] = useState(false)
   useHeaderScroll()
+
+  const cartCount = items.reduce((n, i) => n + i.quantity, 0)
+
+  async function handleLogout() {
+    await signOut()
+    setMobileOpen(false)
+    navigate('/', { replace: true })
+  }
 
   return (
     <header className="sticky top-0 z-[100] bg-white border-b border-border-soft transition-shadow duration-250">
@@ -53,8 +67,19 @@ export function Header() {
               {label}
             </NavLink>
           ))}
-          <NavLink to="/panier" className="text-[#1a1d21] p-1" title="Panier"><CartIcon /></NavLink>
-          <NavLink to="/profil" className="text-[#1a1d21] p-1" title="Mon compte"><UserIcon /></NavLink>
+          <NavLink to="/panier" className="text-[#1a1d21] p-1 relative" title="Panier">
+            <CartIcon />
+            {cartCount > 0 && (
+              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-[#EB5E4E] text-white text-xs font-medium px-1">
+                {cartCount > 99 ? '99+' : cartCount}
+              </span>
+            )}
+          </NavLink>
+          {user ? (
+            <NavLink to="/profil" className="text-[#1a1d21] p-1" title="Mon compte"><UserIcon /></NavLink>
+          ) : (
+            <NavLink to="/connexion" className="text-sm font-medium text-[#1a1d21] hover:text-[#EB5E4E]">Connexion</NavLink>
+          )}
         </nav>
       </div>
 
@@ -69,11 +94,24 @@ export function Header() {
                 </li>
               ))}
               <li className="border-b border-border-soft">
-                <NavLink to="/panier" className="flex items-center gap-3 px-6 py-4" onClick={() => setMobileOpen(false)}><CartIcon /> Panier</NavLink>
+                <NavLink to="/panier" className="flex items-center gap-3 px-6 py-4" onClick={() => setMobileOpen(false)}>
+                  <CartIcon /> Panier {cartCount > 0 && <span className="bg-[#EB5E4E] text-white text-xs rounded-full min-w-[20px] h-5 flex items-center justify-center px-1">{cartCount > 99 ? '99+' : cartCount}</span>}
+                </NavLink>
               </li>
-              <li className="border-b border-border-soft">
-                <NavLink to="/profil" className="flex items-center gap-3 px-6 py-4" onClick={() => setMobileOpen(false)}><UserIcon /> Mon compte</NavLink>
-              </li>
+              {user ? (
+                <li className="border-b border-border-soft">
+                  <NavLink to="/profil" className="flex items-center gap-3 px-6 py-4" onClick={() => setMobileOpen(false)}><UserIcon /> Mon compte</NavLink>
+                </li>
+              ) : (
+                <li className="border-b border-border-soft">
+                  <NavLink to="/connexion" className="flex items-center gap-3 px-6 py-4" onClick={() => setMobileOpen(false)}>Connexion</NavLink>
+                </li>
+              )}
+              {user && (
+                <li>
+                  <button type="button" onClick={() => { handleLogout(); }} className="flex items-center gap-3 px-6 py-4 w-full text-left text-red-600">Se déconnecter</button>
+                </li>
+              )}
             </ul>
           </nav>
         </>

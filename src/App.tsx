@@ -26,10 +26,10 @@ export default function App() {
             <Route path="profil" element={<Profil />} />
             <Route path="mentions-legales" element={<MentionsLegales />} />
             <Route path="politique" element={<Politique />} />
+            <Route path="404" element={<NotFound />} />
           </Route>
           <Route path="connexion" element={<Connexion />} />
           <Route path="inscription" element={<Inscription />} />
-          <Route path="404" element={<NotFound />} />
           <Route path="*" element={<Navigate to="/404" replace />} />
         </Routes>
       </CartProvider>

@@ -22,6 +22,7 @@ export default function Profil() {
   const [editOpen, setEditOpen] = useState(false)
   const [editForm, setEditForm] = useState<EditForm>({ displayName: '', prenom: '', nom: '', dateNaissance: '', groupeSanguin: '', allergies: '', traitements: '' })
   const [saving, setSaving] = useState(false)
+  const [profileMessage, setProfileMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
   useEffect(() => {
     if (!user) {
@@ -37,19 +38,26 @@ export default function Profil() {
   }, [user])
 
   async function handleLogout() {
-    if (!confirm('Voulez-vous vraiment vous déconnecter ?')) return
+    if (!window.confirm('Voulez-vous vraiment vous déconnecter ?')) return
     await signOut()
-    navigate('/connexion')
+    navigate('/', { replace: true })
   }
 
   async function handleSaveEdit(e: React.FormEvent) {
     e.preventDefault()
     if (!user) return
+    setProfileMessage(null)
     setSaving(true)
-    await updateUserProfile(user.uid, { ...editForm })
-    setProfile((prev: UserData | null) => (prev ? { ...prev, ...editForm } : null))
-    setEditOpen(false)
+    const result = await updateUserProfile(user.uid, { ...editForm })
     setSaving(false)
+    if (result.success) {
+      setProfile((prev: UserData | null) => (prev ? { ...prev, ...editForm } : null))
+      setEditOpen(false)
+      setProfileMessage({ type: 'success', text: 'Profil enregistré.' })
+      setTimeout(() => setProfileMessage(null), 4000)
+    } else {
+      setProfileMessage({ type: 'error', text: result.error ?? 'Erreur lors de l’enregistrement.' })
+    }
   }
 
   if (!user && !loading) {
@@ -67,6 +75,11 @@ export default function Profil() {
 
   return (
     <div className="max-w-[700px] mx-auto">
+      {profileMessage && (
+        <div className={`mb-6 p-4 rounded-xl text-sm ${profileMessage.type === 'success' ? 'bg-green-50 border border-green-200 text-green-800' : 'bg-red-50 border border-red-200 text-red-700'}`} role="alert">
+          {profileMessage.text}
+        </div>
+      )}
       <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 rounded-full bg-cta/20 flex items-center justify-center text-cta text-xl font-semibold">{initials}</div>
@@ -115,13 +128,13 @@ export default function Profil() {
           <div className="fixed inset-4 md:inset-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:max-w-lg md:max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-xl z-[101] p-6">
             <h2 className="text-xl font-semibold mb-4">Modifier mon profil</h2>
             <form onSubmit={handleSaveEdit} className="space-y-4">
-              <div><label className="block text-sm font-medium mb-1">Prénom</label><input type="text" className="w-full px-3 py-2 border rounded-lg" value={editForm.prenom} onChange={(e) => setEditForm((f: EditForm) => ({ ...f, prenom: e.target.value }))} /></div>
-              <div><label className="block text-sm font-medium mb-1">Nom</label><input type="text" className="w-full px-3 py-2 border rounded-lg" value={editForm.nom} onChange={(e) => setEditForm((f: EditForm) => ({ ...f, nom: e.target.value }))} /></div>
-              <div><label className="block text-sm font-medium mb-1">Nom complet</label><input type="text" className="w-full px-3 py-2 border rounded-lg" value={editForm.displayName} onChange={(e) => setEditForm((f: EditForm) => ({ ...f, displayName: e.target.value }))} /></div>
-              <div><label className="block text-sm font-medium mb-1">Date de naissance</label><input type="date" className="w-full px-3 py-2 border rounded-lg" value={editForm.dateNaissance} onChange={(e) => setEditForm((f: EditForm) => ({ ...f, dateNaissance: e.target.value }))} /></div>
-              <div><label className="block text-sm font-medium mb-1">Groupe sanguin</label><input type="text" className="w-full px-3 py-2 border rounded-lg" value={editForm.groupeSanguin} onChange={(e) => setEditForm((f: EditForm) => ({ ...f, groupeSanguin: e.target.value }))} /></div>
-              <div><label className="block text-sm font-medium mb-1">Allergies</label><textarea className="w-full px-3 py-2 border rounded-lg" rows={2} value={editForm.allergies} onChange={(e) => setEditForm((f: EditForm) => ({ ...f, allergies: e.target.value }))} /></div>
-              <div><label className="block text-sm font-medium mb-1">Traitements</label><textarea className="w-full px-3 py-2 border rounded-lg" rows={2} value={editForm.traitements} onChange={(e) => setEditForm((f: EditForm) => ({ ...f, traitements: e.target.value }))} /></div>
+              <div><label className="block text-sm font-medium mb-1">Prénom</label><input type="text" className="w-full px-3 py-2 border border-border-soft rounded-lg focus:ring-2 focus:ring-cta focus:border-cta" value={editForm.prenom} onChange={(e) => setEditForm((f: EditForm) => ({ ...f, prenom: e.target.value }))} /></div>
+              <div><label className="block text-sm font-medium mb-1">Nom</label><input type="text" className="w-full px-3 py-2 border border-border-soft rounded-lg focus:ring-2 focus:ring-cta focus:border-cta" value={editForm.nom} onChange={(e) => setEditForm((f: EditForm) => ({ ...f, nom: e.target.value }))} /></div>
+              <div><label className="block text-sm font-medium mb-1">Nom complet</label><input type="text" className="w-full px-3 py-2 border border-border-soft rounded-lg focus:ring-2 focus:ring-cta focus:border-cta" value={editForm.displayName} onChange={(e) => setEditForm((f: EditForm) => ({ ...f, displayName: e.target.value }))} /></div>
+              <div><label className="block text-sm font-medium mb-1">Date de naissance</label><input type="date" className="w-full px-3 py-2 border border-border-soft rounded-lg focus:ring-2 focus:ring-cta focus:border-cta" value={editForm.dateNaissance} onChange={(e) => setEditForm((f: EditForm) => ({ ...f, dateNaissance: e.target.value }))} /></div>
+              <div><label className="block text-sm font-medium mb-1">Groupe sanguin</label><input type="text" className="w-full px-3 py-2 border border-border-soft rounded-lg focus:ring-2 focus:ring-cta focus:border-cta" value={editForm.groupeSanguin} onChange={(e) => setEditForm((f: EditForm) => ({ ...f, groupeSanguin: e.target.value }))} /></div>
+              <div><label className="block text-sm font-medium mb-1">Allergies</label><textarea className="w-full px-3 py-2 border border-border-soft rounded-lg focus:ring-2 focus:ring-cta focus:border-cta" rows={2} value={editForm.allergies} onChange={(e) => setEditForm((f: EditForm) => ({ ...f, allergies: e.target.value }))} /></div>
+              <div><label className="block text-sm font-medium mb-1">Traitements</label><textarea className="w-full px-3 py-2 border border-border-soft rounded-lg focus:ring-2 focus:ring-cta focus:border-cta" rows={2} value={editForm.traitements} onChange={(e) => setEditForm((f: EditForm) => ({ ...f, traitements: e.target.value }))} /></div>
               <div className="flex gap-2">
                 <button type="button" onClick={() => setEditOpen(false)} className="flex-1 py-2 border rounded-lg">Annuler</button>
                 <button type="submit" disabled={saving} className="flex-1 bg-cta hover:bg-cta-hover text-white py-2 rounded-lg disabled:opacity-50">Enregistrer</button>

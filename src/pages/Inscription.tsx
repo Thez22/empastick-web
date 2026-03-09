@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { signUp } from '../lib/auth'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -7,7 +7,10 @@ const BLOOD_OPTIONS = ['', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Je
 
 export default function Inscription() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { user } = useAuth()
+  const state = location.state as { requireAuth?: boolean; returnTo?: string } | null
+  const returnTo = state?.returnTo ?? '/'
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
@@ -29,8 +32,12 @@ export default function Inscription() {
     cgu: false,
   })
 
+  useEffect(() => {
+    document.title = 'Créer un compte – Empastick'
+  }, [])
+
   if (user) {
-    navigate('/', { replace: true })
+    navigate(returnTo, { replace: true })
     return null
   }
 
@@ -65,7 +72,7 @@ export default function Inscription() {
     setLoading(false)
     if (result.success) {
       setSuccess('Inscription réussie ! Redirection...')
-      setTimeout(() => navigate('/'), 1500)
+      setTimeout(() => navigate(returnTo), 1500)
     } else {
       setError(result.error ?? "Erreur lors de l'inscription")
     }
@@ -78,7 +85,11 @@ export default function Inscription() {
     <div className="min-h-screen py-12 px-4 bg-[#f8f7f4]">
       <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-lg p-8">
         <h1 className="text-2xl font-semibold text-[#1a1d21] mb-1">Créer un compte</h1>
-        <p className="text-text-muted text-sm mb-6">Rejoignez la communauté Empastick</p>
+        <p className="text-text-muted text-sm mb-6">
+          {state?.requireAuth
+            ? 'Créez un compte pour acheter et lier un abonnement à votre profil.'
+            : 'Rejoignez la communauté Empastick'}
+        </p>
 
         {error && <div className="mb-4 p-3 rounded-lg bg-red-50 text-red-700 text-sm">{error}</div>}
         {success && <div className="mb-4 p-3 rounded-lg bg-green-50 text-green-700 text-sm">{success}</div>}
@@ -112,11 +123,11 @@ export default function Inscription() {
               <h3 className="font-medium text-sm">Contact n°1 *</h3>
               <div><label className={labelClass}>Nom & Prénom</label><input type="text" className={inputClass} value={form.urgence1_nom} onChange={(e) => update('urgence1_nom', e.target.value)} required /></div>
               <div><label className={labelClass}>Téléphone</label><input type="tel" className={inputClass} value={form.urgence1_tel} onChange={(e) => update('urgence1_tel', e.target.value)} placeholder="06 00 00 00 00" required /></div>
-              <h3 className="font-medium text-sm pt-2">Contact n°2</h3>
-              <div><label className={labelClass}>Nom & Prénom</label><input type="text" className={inputClass} value={form.urgence2_nom} onChange={(e) => update('urgence2_nom', e.target.value)} required /></div>
-              <div><label className={labelClass}>Téléphone</label><input type="tel" className={inputClass} value={form.urgence2_tel} onChange={(e) => update('urgence2_tel', e.target.value)} required /></div>
-              <h3 className="font-medium text-sm pt-2">Contact n°3</h3>
-              <div><label className={labelClass}>Nom & Prénom</label><input type="text" className={inputClass} value={form.urgence3_nom} onChange={(e) => update('urgence3_nom', e.target.value)} /></div>
+              <h3 className="font-medium text-sm pt-2">Contact n°2 (optionnel)</h3>
+              <div><label className={labelClass}>Nom & Prénom</label><input type="text" className={inputClass} value={form.urgence2_nom} onChange={(e) => update('urgence2_nom', e.target.value)} placeholder="Optionnel" /></div>
+              <div><label className={labelClass}>Téléphone</label><input type="tel" className={inputClass} value={form.urgence2_tel} onChange={(e) => update('urgence2_tel', e.target.value)} placeholder="06 00 00 00 00" /></div>
+              <h3 className="font-medium text-sm pt-2">Contact n°3 (optionnel)</h3>
+              <div><label className={labelClass}>Nom & Prénom</label><input type="text" className={inputClass} value={form.urgence3_nom} onChange={(e) => update('urgence3_nom', e.target.value)} placeholder="Optionnel" /></div>
               <div><label className={labelClass}>Téléphone</label><input type="tel" className={inputClass} value={form.urgence3_tel} onChange={(e) => update('urgence3_tel', e.target.value)} /></div>
             </div>
           </section>
@@ -124,14 +135,14 @@ export default function Inscription() {
           <div>
             <label className="flex items-start gap-2 cursor-pointer">
               <input type="checkbox" checked={form.cgu} onChange={(e) => update('cgu', e.target.checked)} required className="mt-1" />
-              <span className="text-sm">J&apos;accepte les <a href="/politique" target="_blank" rel="noopener noreferrer" className="text-cta underline">conditions générales d&apos;utilisation</a> *</span>
+              <span className="text-sm">J&apos;accepte les <Link to="/politique" className="text-cta underline hover:no-underline">conditions générales d&apos;utilisation et la politique de confidentialité</Link> *</span>
             </label>
           </div>
 
           <button type="submit" disabled={loading} className="w-full bg-cta hover:bg-cta-hover text-white font-medium py-3 rounded-lg disabled:opacity-50">VALIDER MON INSCRIPTION</button>
         </form>
 
-        <p className="mt-6 text-center text-sm"><Link to="/connexion" className="text-cta hover:underline">Retour à la connexion</Link></p>
+        <p className="mt-6 text-center text-sm"><Link to="/connexion" state={state ?? undefined} className="text-cta hover:underline">Retour à la connexion</Link></p>
       </div>
     </div>
   )

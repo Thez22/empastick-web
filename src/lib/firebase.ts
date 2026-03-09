@@ -3,12 +3,12 @@ import { getAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyDduen2D5QTH2l6mW4fhftudWOX-eA68Os',
-  authDomain: 'empastick-v2.firebaseapp.com',
-  projectId: 'empastick-v2',
-  storageBucket: 'gs://empastick-v2.firebasestorage.app',
-  messagingSenderId: '556195523356',
-  appId: '1:556195523356:web:6c467c444a636d2ee928d9',
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 }
 
 const app = initializeApp(firebaseConfig)
