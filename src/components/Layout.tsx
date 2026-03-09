@@ -9,6 +9,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/produit': 'Produit – Empastick',
   '/a-propos': 'À propos – Empastick',
   '/panier': 'Panier – Empastick',
+  '/commande/confirmation': 'Confirmation de commande – Empastick',
   '/profil': 'Mon compte – Empastick',
   '/mentions-legales': 'Mentions légales – Empastick',
   '/politique': 'Politique de confidentialité – Empastick',

@@ -8,6 +8,7 @@ import APropos from './pages/APropos'
 import Connexion from './pages/Connexion'
 import Inscription from './pages/Inscription'
 import Panier from './pages/Panier'
+import ConfirmationCommande from './pages/ConfirmationCommande'
 import Profil from './pages/Profil'
 import MentionsLegales from './pages/MentionsLegales'
 import Politique from './pages/Politique'
@@ -23,6 +24,7 @@ export default function App() {
             <Route path="produit" element={<Produit />} />
             <Route path="a-propos" element={<APropos />} />
             <Route path="panier" element={<Panier />} />
+            <Route path="commande/confirmation" element={<ConfirmationCommande />} />
             <Route path="profil" element={<Profil />} />
             <Route path="mentions-legales" element={<MentionsLegales />} />
             <Route path="politique" element={<Politique />} />
