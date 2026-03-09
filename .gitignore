@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Build
+dist/
+dist-ssr/
+*.local
+
+# Local env files (ne pas commiter les clés Firebase, EmailJS, etc.)
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor
+.vscode/*
+!.vite/deps
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Vercel
+.vercel
