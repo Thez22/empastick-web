@@ -118,7 +118,7 @@ export default function Panier() {
       })
     } catch (err) {
       console.error(err)
-      setPaymentError('Une erreur est survenue. VÃ©rifiez vos informations et rÃ©essayez.')
+      setPaymentError('Une erreur est survenue. Vérifiez vos informations et réessayez.')
     } finally {
       setPaying(false)
     }
@@ -136,10 +136,10 @@ export default function Panier() {
         </div>
         <h2 className="text-xl font-semibold text-[#1a1d21] mb-2">Votre panier est vide</h2>
         <p className="text-text-muted text-center mb-6">
-          Il n&apos;y a aucun article dans votre panier.<br />DÃ©couvrez nos bÃ¢tons connectÃ©s et ajoutez votre premier produit.
+          Il n&apos;y a aucun article dans votre panier.<br />Découvrez nos bâtons connectés et ajoutez votre premier produit.
         </p>
         <Link to="/produit" className="bg-cta hover:bg-cta-hover text-white font-medium px-6 py-3 rounded-lg">
-          DÃ©couvrir nos produits
+          Découvrir nos produits
         </Link>
       </div>
     )
@@ -149,7 +149,7 @@ export default function Panier() {
     <div className="max-w-[1000px] mx-auto">
       {!user && items.length > 0 && (
         <div className="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-sm flex flex-wrap items-center gap-2">
-          <span>Pour valider votre commande et lier un abonnement Ã  votre compte,</span>
+          <span>Pour valider votre commande et lier un abonnement à votre compte,</span>
           <Link to="/connexion" state={{ requireAuth: true, returnTo: '/panier' }} className="font-medium underline">connectez-vous</Link>
           <span>ou</span>
           <Link to="/inscription" state={{ requireAuth: true, returnTo: '/panier' }} className="font-medium underline">créez un compte</Link>.
@@ -182,7 +182,7 @@ export default function Panier() {
         </div>
 
         <div className="bg-white rounded-xl border border-border-soft p-6 h-fit">
-          <h2 className="font-semibold text-[#1a1d21] mb-4">RÃ©sumÃ© de la commande</h2>
+          <h2 className="font-semibold text-[#1a1d21] mb-4">Résumé de la commande</h2>
           <div className="flex justify-between text-sm mb-2"><span>Sous-total</span><span>{formatPrice(subtotal)}</span></div>
           <div className="flex justify-between text-sm mb-2"><span>Livraison</span><span className="text-cta">Gratuite</span></div>
           <hr className="border-border-soft my-4" />
@@ -198,7 +198,7 @@ export default function Panier() {
             </svg>
           </button>
           <p className="text-xs text-text-muted mt-3 flex items-center gap-1">
-            <span className="inline-block w-4 h-4">ðŸ”’</span> Paiement sÃ©curisÃ©
+            <span className="inline-block w-4 h-4">ðŸ”’</span> Paiement sécurisé
           </p>
         </div>
       </div>
@@ -209,7 +209,7 @@ export default function Panier() {
           <div className="fixed inset-4 md:inset-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:max-w-lg md:max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-xl z-[101] p-6">
             <button type="button" onClick={() => !paying && setModalOpen(false)} disabled={paying} className="absolute top-4 right-4 text-text-muted hover:text-[#1a1d21] disabled:opacity-50" aria-label="Fermer">âœ•</button>
             <h2 className="text-xl font-semibold mb-1">Finaliser votre commande</h2>
-            <p className="text-sm text-text-muted mb-4">Paiement sÃ©curisÃ© â€“ Simulation</p>
+            <p className="text-sm text-text-muted mb-4">Paiement sécurisé â€“ Simulation</p>
 
             {paymentError && <div className="mb-4 p-3 rounded-lg bg-red-50 text-red-700 text-sm" role="alert">{paymentError}</div>}
 
@@ -217,7 +217,7 @@ export default function Panier() {
               <div>
                 <h3 className="font-medium text-sm mb-2">Informations de livraison</h3>
                 <div className="grid grid-cols-2 gap-2">
-                  <input type="text" placeholder="PrÃ©nom" required value={paymentForm.firstName} onChange={(e) => setPaymentForm((f) => ({ ...f, firstName: e.target.value }))} disabled={paying} className="w-full px-3 py-2 border border-border-soft rounded-lg disabled:opacity-60 disabled:bg-gray-50" />
+                  <input type="text" placeholder="Prénom" required value={paymentForm.firstName} onChange={(e) => setPaymentForm((f) => ({ ...f, firstName: e.target.value }))} disabled={paying} className="w-full px-3 py-2 border border-border-soft rounded-lg disabled:opacity-60 disabled:bg-gray-50" />
                   <input type="text" placeholder="Nom" required value={paymentForm.lastName} onChange={(e) => setPaymentForm((f) => ({ ...f, lastName: e.target.value }))} disabled={paying} className="w-full px-3 py-2 border border-border-soft rounded-lg disabled:opacity-60 disabled:bg-gray-50" />
                 </div>
                 <input type="email" placeholder="Email" required value={paymentForm.email} onChange={(e) => setPaymentForm((f) => ({ ...f, email: e.target.value }))} disabled={paying} className="w-full px-3 py-2 border border-border-soft rounded-lg mt-2 disabled:opacity-60 disabled:bg-gray-50" />
@@ -229,7 +229,7 @@ export default function Panier() {
               </div>
               <div>
                 <h3 className="font-medium text-sm mb-2">Informations de paiement</h3>
-                <input type="text" placeholder="NumÃ©ro de carte" required value={paymentForm.cardNumber} onChange={(e) => setPaymentForm((f) => ({ ...f, cardNumber: e.target.value }))} disabled={paying} className="w-full px-3 py-2 border border-border-soft rounded-lg mb-2 disabled:opacity-60 disabled:bg-gray-50" />
+                <input type="text" placeholder="Numéro de carte" required value={paymentForm.cardNumber} onChange={(e) => setPaymentForm((f) => ({ ...f, cardNumber: e.target.value }))} disabled={paying} className="w-full px-3 py-2 border border-border-soft rounded-lg mb-2 disabled:opacity-60 disabled:bg-gray-50" />
                 <div className="grid grid-cols-2 gap-2">
                   <input type="text" placeholder="MM/AA" required value={paymentForm.cardExpiry} onChange={(e) => setPaymentForm((f) => ({ ...f, cardExpiry: e.target.value }))} disabled={paying} className="w-full px-3 py-2 border border-border-soft rounded-lg disabled:opacity-60 disabled:bg-gray-50" />
                   <input type="text" placeholder="CVV" required value={paymentForm.cardCVC} onChange={(e) => setPaymentForm((f) => ({ ...f, cardCVC: e.target.value }))} disabled={paying} className="w-full px-3 py-2 border border-border-soft rounded-lg disabled:opacity-60 disabled:bg-gray-50" />
