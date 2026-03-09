@@ -161,9 +161,12 @@ export default function MLG() {
   const popIdRef = useRef(0)
   const targetIdRef = useRef(0)
   const timeoutsRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map())
+  const scoreRef = useRef(0)
+  const comboRef = useRef(0)
+  const spawnTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const TARGET_LIFETIME_MS = 750
-  const SPAWN_INTERVAL_MS = 550
+  scoreRef.current = score
+  comboRef.current = combo
 
   useHardcoreTechno(muted, started)
 
@@ -189,21 +192,34 @@ export default function MLG() {
 
   useEffect(() => {
     if (!started) return
-    const spawn = () => {
+    const getLifetime = (s: number, c: number) => {
+      const base = Math.max(700, 2400 - s / 35)
+      return base + (c === 0 ? 600 : 0)
+    }
+    const getSpawnDelay = (s: number) => Math.max(600, 1400 - s / 50)
+
+    const scheduleSpawn = () => {
+      const s = scoreRef.current
+      const c = comboRef.current
       const id = ++targetIdRef.current
       const x = 12 + Math.random() * 76
       const y = 15 + Math.random() * 70
+      const lifetime = getLifetime(s, c)
       setTargets((prev) => [...prev, { id, x, y, spawnTime: Date.now() }])
       const t = setTimeout(() => {
         setTargets((prev) => prev.filter((target) => target.id !== id))
         setCombo(0)
         timeoutsRef.current.delete(id)
-      }, TARGET_LIFETIME_MS)
+      }, lifetime)
       timeoutsRef.current.set(id, t)
+      spawnTimeoutRef.current = setTimeout(scheduleSpawn, getSpawnDelay(s))
     }
-    spawn()
-    const interval = setInterval(spawn, SPAWN_INTERVAL_MS)
-    return () => clearInterval(interval)
+    scheduleSpawn()
+    return () => {
+      if (spawnTimeoutRef.current) clearTimeout(spawnTimeoutRef.current)
+      timeoutsRef.current.forEach((t) => clearTimeout(t))
+      timeoutsRef.current.clear()
+    }
   }, [started])
 
   useEffect(() => {
@@ -364,7 +380,7 @@ export default function MLG() {
             <button
               key={id}
               type="button"
-              className="absolute z-20 w-14 h-14 sm:w-16 sm:h-16 -translate-x-1/2 -translate-y-1/2 cursor-crosshair target-btn"
+              className="absolute z-20 w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 -translate-x-1/2 -translate-y-1/2 cursor-crosshair target-btn"
               style={{ left: `${x}%`, top: `${y}%` }}
               onClick={(e) => {
                 e.stopPropagation()
@@ -463,19 +479,25 @@ export default function MLG() {
           border: none;
           transition: transform 0.05s;
         }
-        .target-btn:hover { transform: translate(-50%, -50%) scale(1.15); }
+        .target-btn:hover { transform: translate(-50%, -50%) scale(1.1); }
         .target-crosshair {
           display: block;
           width: 100%;
           height: 100%;
-          background: radial-gradient(circle, transparent 30%, rgba(255,255,255,0.95) 32%, rgba(255,0,0,0.9) 38%, transparent 42%);
-          box-shadow: 0 0 0 3px rgba(255,255,255,0.8), 0 0 12px red;
           border-radius: 50%;
-          animation: target-pulse 0.2s ease-in-out infinite;
+          background: #00ff00;
+          border: 5px solid #000;
+          box-shadow:
+            0 0 0 3px #fff,
+            0 0 0 6px #000,
+            0 0 25px 8px rgba(0,255,0,0.9),
+            0 0 40px 15px rgba(0,255,0,0.5),
+            inset 0 0 15px rgba(255,255,255,0.4);
+          animation: target-pulse 0.25s ease-in-out infinite;
         }
         @keyframes target-pulse {
-          0%, 100% { transform: scale(1); opacity: 1; }
-          50% { transform: scale(1.05); opacity: 0.9; }
+          0%, 100% { transform: scale(1); box-shadow: 0 0 0 3px #fff, 0 0 0 6px #000, 0 0 25px 8px rgba(0,255,0,0.9), 0 0 40px 15px rgba(0,255,0,0.5), inset 0 0 15px rgba(255,255,255,0.4); }
+          50% { transform: scale(1.08); box-shadow: 0 0 0 4px #fff, 0 0 0 7px #000, 0 0 35px 12px rgba(0,255,0,1), 0 0 55px 20px rgba(0,255,0,0.6), inset 0 0 20px rgba(255,255,255,0.5); }
         }
         .hit-feedback {
           animation: hit-feedback 0.35s ease-out forwards;
