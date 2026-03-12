@@ -7,9 +7,9 @@ import { useCart } from '../contexts/CartContext'
 import { useScrollAnimations } from '../hooks/useScrollAnimations'
 
 const VARIANTS: Record<string, { name: string; main: string; top: string; bottom: string }> = {
-  olive: { name: 'Olive', main: '/images/olive/olive.png', top: '/images/olive/katman_1.png', bottom: '/images/olive/man.png' },
-  gold: { name: 'Lavande', main: '/images/lavande/Component.png', top: '/images/lavande/violet.png', bottom: '/images/lavande/photoshopempastick.png' },
-  neutral: { name: 'Flamme', main: '/images/rouge/Component.png', top: '/images/rouge/baton.png', bottom: '/images/rouge/womenbancrouge.png' },
+  olive: { name: 'Olive', main: '/images/Adobe Express - file (2).png', top: '/images/Adobe Express - file (2).png', bottom: '/images/Adobe Express - file (2).png' },
+  gold: { name: 'Lavande', main: '/images/Adobe Express - file (1).png', top: '/images/Adobe Express - file (1).png', bottom: '/images/Adobe Express - file (1).png' },
+  neutral: { name: 'Flamme', main: '/images/Adobe Express - file.png', top: '/images/Adobe Express - file.png', bottom: '/images/Adobe Express - file.png' },
 }
 
 const BASE_PRICE = 140

@@ -22,15 +22,8 @@ export function Layout() {
     document.title = PAGE_TITLES[pathname] ?? 'Empastick'
   }, [pathname])
 
-  useEffect(() => {
-    if (pathname === '/produit') {
-      document.body.classList.add('page-produit')
-      return () => document.body.classList.remove('page-produit')
-    }
-  }, [pathname])
-
   return (
-    <div className={`min-h-screen flex flex-col ${pathname === '/produit' ? 'bg-transparent' : ''}`}>
+    <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1 max-w-[1200px] w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
         <Outlet />
