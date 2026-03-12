@@ -5,7 +5,9 @@ const MLG_TEXTS = [
   'REKT', 'GET NOSCOPED', 'WOW', 'MOM GET THE CAMERA', '420 BLAZE IT',
   'ILLUMINATI', 'HITMARKER', 'MLG', '360', 'NO SCOPE', 'GG EZ', 'PWNED',
   'LEGENDARY', 'TRIPLE KILL', 'UNSTOPPABLE', 'RAMPAGE', '2 MLG 4 U',
-  'DEAL WITH IT', 'SALE', 'EPIC', 'BRUV', 'OMAE WA MOU',
+  'DEAL WITH IT', 'SALE', 'EPIC', 'BRUV', 'OMAE WA MOU', 'DORITOS', 'MTN DEW',
+  'AIRHORN', 'SALTY', 'GIT GUD', 'LAG', 'HACKER', '???', 'WTF', 'YOLO',
+  'RIP', 'F', 'POG', 'KAPPA', 'MONSTER ENERGY', 'RED BULL', 'NUT',
 ]
 
 const COMBO_FEEDBACK: Record<number, string> = {
@@ -238,6 +240,7 @@ function pickTargetType(): TargetType {
 export default function MLG() {
   const [muted, setMuted] = useState(false)
   const [started, setStarted] = useState(false)
+  const [countdownDone, setCountdownDone] = useState(false)
   const [countdownPhase, setCountdownPhase] = useState<null | '3' | '2' | '1' | 'GO'>(null)
   const [gameOver, setGameOver] = useState(false)
   const [finalStats, setFinalStats] = useState<{ score: number; maxCombo: number; wave: number } | null>(null)
@@ -269,7 +272,6 @@ export default function MLG() {
   const waveRef = useRef(1)
   const gameOverRef = useRef(false)
   const spawnTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const countdownDoneRef = useRef(false)
   const spawnCountRef = useRef(0)
   const initialHighScoreRef = useRef(0)
   const maxComboRef = useRef(0)
@@ -426,7 +428,7 @@ export default function MLG() {
   }, [activePowerUps.shieldActive])
 
   useEffect(() => {
-    if (!started || gameOver || !countdownDoneRef.current) return
+    if (!started || gameOver || !countdownDone) return
 
     const getLifetime = (w: number, c: number) => {
       const base = Math.max(600, 2200 - w * 80 - scoreRef.current / 50)
@@ -489,7 +491,7 @@ export default function MLG() {
     return () => {
       if (spawnTimeoutRef.current) clearTimeout(spawnTimeoutRef.current)
     }
-  }, [started, gameOver, wave, removeLife])
+  }, [started, gameOver, wave, countdownDone, removeLife])
 
   useEffect(() => {
     if (!started || gameOver) return
@@ -559,7 +561,7 @@ export default function MLG() {
       const t3 = setTimeout(() => setCountdownPhase('GO'), 3000)
       const t4 = setTimeout(() => {
         setCountdownPhase(null)
-        countdownDoneRef.current = true
+        setCountdownDone(true)
       }, 4000)
       return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4) }
     }
@@ -581,7 +583,7 @@ export default function MLG() {
     scoreRef.current = 0
     comboRef.current = 0
     gameOverRef.current = false
-    countdownDoneRef.current = false
+    setCountdownDone(false)
     spawnCountRef.current = 0
     maxComboRef.current = 0
     initialHighScoreRef.current = parseInt(localStorage.getItem('mlg_high_score') ?? '0', 10)
@@ -594,7 +596,7 @@ export default function MLG() {
     setTimeout(() => setCountdownPhase('GO'), 3000)
     setTimeout(() => {
       setCountdownPhase(null)
-      countdownDoneRef.current = true
+      setCountdownDone(true)
     }, 4000)
   }
 
@@ -646,14 +648,14 @@ export default function MLG() {
       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
         <p className="text-4xl sm:text-6xl md:text-8xl font-black text-white text-center uppercase tracking-wider outline-text rainbow-border" style={impact}>EMPASTICK</p>
         <p className="text-2xl sm:text-4xl md:text-5xl font-black text-white/95 mt-2 uppercase tracking-[0.3em] outline-text" style={impact}>360 NO SCOPE</p>
-        <p className="text-xl sm:text-2xl font-black text-yellow-400 mt-4 uppercase outline-text" style={impact}>MLG HARD</p>
+        <p className="text-xl sm:text-2xl font-black text-yellow-400 mt-4 uppercase outline-text glitch-text" style={impact}>MODE CHAOS ACTIVÉ</p>
       </div>
 
       {popTexts.map(({ id, text, x, y }) => (
         <div key={id} className="absolute text-xl sm:text-2xl md:text-3xl font-black uppercase text-white outline-text pointer-events-none" style={{ left: `${x}%`, top: `${y}%`, ...impact, animation: 'pop-in 0.4s ease-out forwards' }}>{text}</div>
       ))}
 
-      <div className="absolute top-8 left-1/2 -translate-x-1/2 text-3xl sm:text-4xl font-black text-red-600 bg-yellow-400 px-6 py-2 rotate-[-5deg] border-4 border-red-600 stripe-bg pointer-events-none" style={impact}>MLG SALE 100% REKT</div>
+      <div className="absolute top-8 left-1/2 -translate-x-1/2 text-3xl sm:text-4xl font-black text-red-600 bg-yellow-400 px-6 py-2 rotate-[-5deg] border-4 border-red-600 stripe-bg pointer-events-none wobble" style={impact}>??? EASTER EGG ???</div>
       <div className="absolute bottom-32 left-1/2 -translate-x-1/2 text-2xl sm:text-3xl font-black text-white outline-text pointer-events-none" style={impact}>DEAL WITH IT</div>
       <div className="absolute top-0 right-0 w-1/2 h-1/2 pointer-events-none opacity-30 lens-flare" />
 
@@ -696,7 +698,7 @@ export default function MLG() {
             <button
               key={target.id}
               type="button"
-              className={`absolute z-20 w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 -translate-x-1/2 -translate-y-1/2 cursor-crosshair target-btn target-${target.type}`}
+              className={`absolute z-20 w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 -translate-x-1/2 -translate-y-1/2 cursor-crosshair target-btn target-crazy target-${target.type}`}
               style={{ left: `${target.x}%`, top: `${target.y}%` }}
               onClick={(e) => onTargetClick(target, e)}
               aria-label="Cible"
@@ -713,7 +715,8 @@ export default function MLG() {
       {/* Game Over */}
       {gameOver && finalStats && (
         <div className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/70 p-6" onClick={(e) => e.stopPropagation()}>
-          <p className="text-4xl sm:text-5xl font-black text-white outline-text mb-4" style={impact}>GAME OVER</p>
+          <p className="text-4xl sm:text-5xl font-black text-white outline-text mb-4 glitch-text" style={impact}>GAME OVER</p>
+          <p className="text-lg font-black text-amber-300 outline-text mb-2 wobble" style={impact}>??? U DED ???</p>
           {newRecord && <p className="text-2xl font-black text-amber-400 outline-text mb-2" style={impact}>NEW RECORD</p>}
           <p className="text-xl text-white/90">Score: {finalStats.score}</p>
           <p className="text-lg text-white/80">Meilleur combo (cette partie): {finalStats.maxCombo}</p>
@@ -727,10 +730,13 @@ export default function MLG() {
         </div>
       )}
 
-      {/* Countdown */}
+      {/* Countdown - style fou */}
       {started && countdownPhase && !gameOver && (
         <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
-          <p className="text-8xl sm:text-9xl font-black text-white outline-text countdown" style={impact}>{countdownPhase}</p>
+          <p className="text-8xl sm:text-9xl font-black text-white outline-text countdown countdown-crazy" style={impact}>{countdownPhase}</p>
+          <p className="absolute text-2xl font-black text-amber-400 outline-text mt-32 uppercase" style={impact}>
+            {countdownPhase === 'GO' ? 'DESTROY THE TARGETS' : 'GET READY'}
+          </p>
         </div>
       )}
 
@@ -743,7 +749,8 @@ export default function MLG() {
       {!started && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 pointer-events-none" aria-hidden="true">
           <p className="text-white text-xl sm:text-2xl font-bold uppercase tracking-widest text-center" style={impact}>Clique pour lancer le chaos</p>
-          <p className="text-white/80 text-sm mt-2">+ mini-jeu 360 NO SCOPE : clique les cibles</p>
+          <p className="text-amber-300 text-sm mt-2 font-black">??? EASTER EGG ??? · Clique les cibles · Évite les pièges rouges · Bonus dorés = 2x</p>
+          <p className="text-white/60 text-xs mt-4">Vies: 3 · Combo = plus de points · BOSS WAVE toutes les 3 vagues</p>
         </div>
       )}
 
@@ -762,7 +769,9 @@ export default function MLG() {
         .mlg-screen-shake { animation: screen-shake 0.12s ease-in-out infinite; }
         @keyframes screen-shake { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-3px, 2px); } 50% { transform: translate(3px, -2px); } 75% { transform: translate(-2px, 3px); } }
         .target-btn { background: transparent; border: none; transition: transform 0.05s; }
-        .target-btn:hover { transform: translate(-50%, -50%) scale(1.1); }
+        .target-btn:hover { transform: translate(-50%, -50%) scale(1.1) rotate(180deg); }
+        .target-crazy { animation: target-spin 3s linear infinite; }
+        @keyframes target-spin { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
         .target-crosshair { display: block; width: 100%; height: 100%; border-radius: 50%; position: relative; animation: target-pulse 0.25s ease-in-out infinite; }
         .target-inner-normal { background: #00ff00; border: 5px solid #000; box-shadow: 0 0 0 3px #fff, 0 0 0 6px #000, 0 0 25px 8px rgba(0,255,0,0.9), 0 0 40px 15px rgba(0,255,0,0.5), inset 0 0 15px rgba(255,255,255,0.4); }
         .target-inner-bonus { background: linear-gradient(135deg, #fbbf24, #f59e0b); border: 5px solid #000; box-shadow: 0 0 0 3px #fff, 0 0 0 6px #000, 0 0 30px 10px rgba(251,191,36,0.9), inset 0 0 20px rgba(255,255,255,0.5); animation: target-pulse-bonus 0.2s ease-in-out infinite; }
@@ -780,6 +789,12 @@ export default function MLG() {
         .announce { animation: pop-in 0.4s ease-out; }
         .countdown { animation: countdown-pop 0.5s ease-out; }
         @keyframes countdown-pop { 0% { transform: scale(0.3); opacity: 0; } 70% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+        .countdown-crazy { animation: countdown-pop 0.5s ease-out, rainbow-countdown 0.8s linear infinite; }
+        @keyframes rainbow-countdown { 0% { filter: drop-shadow(0 0 20px rgba(255,0,0,0.9)) hue-rotate(0deg); } 33% { filter: drop-shadow(0 0 20px rgba(0,255,0,0.9)) hue-rotate(120deg); } 66% { filter: drop-shadow(0 0 20px rgba(0,0,255,0.9)) hue-rotate(240deg); } 100% { filter: drop-shadow(0 0 20px rgba(255,0,0,0.9)) hue-rotate(360deg); } }
+        .glitch-text { animation: glitch 2s infinite; }
+        @keyframes glitch { 0%, 90%, 100% { transform: translate(0); filter: hue-rotate(0deg); } 92% { transform: translate(-2px, 1px); filter: hue-rotate(90deg); } 94% { transform: translate(2px, -1px); filter: hue-rotate(180deg); } 96% { transform: translate(-1px, 2px); filter: hue-rotate(270deg); } 98% { transform: translate(1px, -2px); filter: hue-rotate(360deg); } }
+        .wobble { animation: wobble 0.4s ease-in-out infinite; }
+        @keyframes wobble { 0%, 100% { transform: translateX(-50%) rotate(-5deg); } 50% { transform: translateX(-50%) rotate(5deg); } }
       `}</style>
     </div>
   )
