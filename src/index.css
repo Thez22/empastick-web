@@ -282,8 +282,9 @@ header.header-scrolled {
 .product-gallery-main img {
   min-height: 280px;
   max-height: 420px;
-  /* Fond noir du PNG → laisse voir le gris de l'encadré */
-  mix-blend-mode: screen;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
 }
 
 .product-gallery-top img,
