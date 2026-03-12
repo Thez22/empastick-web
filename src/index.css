@@ -4,6 +4,7 @@
 
 html { scroll-behavior: smooth; }
 body { @apply font-sans antialiased text-[#1a1d21] bg-[#f8f7f4]; }
+body.page-produit { background: transparent; }
 
 header.header-scrolled {
   box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
