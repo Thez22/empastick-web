@@ -601,8 +601,8 @@ export default function MLG() {
   const toggleMute = () => setMuted((m) => !m)
 
   const impact = { fontFamily: 'Impact, "Arial Black", sans-serif' }
-  const highScore = parseInt(localStorage.getItem('mlg_high_score') ?? '0', 10)
-  const bestCombo = parseInt(localStorage.getItem('mlg_best_combo') ?? '0', 10)
+  const savedHighScore = parseInt(localStorage.getItem('mlg_high_score') ?? '0', 10)
+  const savedBestCombo = parseInt(localStorage.getItem('mlg_best_combo') ?? '0', 10)
 
   return (
     <div
@@ -716,8 +716,9 @@ export default function MLG() {
           <p className="text-4xl sm:text-5xl font-black text-white outline-text mb-4" style={impact}>GAME OVER</p>
           {newRecord && <p className="text-2xl font-black text-amber-400 outline-text mb-2" style={impact}>NEW RECORD</p>}
           <p className="text-xl text-white/90">Score: {finalStats.score}</p>
-          <p className="text-lg text-white/80">Meilleur combo: {finalStats.maxCombo}</p>
+          <p className="text-lg text-white/80">Meilleur combo (cette partie): {finalStats.maxCombo}</p>
           <p className="text-lg text-white/80">Vague: {finalStats.wave}</p>
+          <p className="text-lg text-white/80">Record: {savedHighScore} · Meilleur combo: {savedBestCombo}</p>
           <p className="text-lg text-amber-300 mt-2">Rang: {getRank(finalStats.score)}</p>
           <div className="flex gap-4 mt-8">
             <button type="button" onClick={handleReplay} className="px-6 py-3 bg-cta hover:bg-cta-hover text-white font-bold rounded border-2 border-white/50" style={impact}>REPLAY</button>
