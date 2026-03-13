@@ -2,7 +2,11 @@ import { Link } from 'react-router-dom'
 
 export default function NotFound() {
   return (
-    <div className="max-w-[600px] mx-auto flex flex-col md:flex-row items-center gap-8 py-16">
+    <div className="max-w-[600px] mx-auto flex flex-col items-center gap-8 py-16">
+      <Link to="/" className="mb-4">
+        <img src="/favicon.jpg" alt="Empastick" className="h-10 w-auto object-contain" />
+      </Link>
+      <div className="flex flex-col md:flex-row items-center gap-8 w-full">
       <div className="flex-1 text-center md:text-left">
         <h1 className="text-4xl font-bold text-[#1a1d21] mb-2">Oups !</h1>
         <p className="text-text-muted mb-4">La page que vous cherchez semble introuvable.</p>
@@ -18,6 +22,7 @@ export default function NotFound() {
       </div>
       <div className="flex-1">
         <img src="/images/hsb.png" alt="" className="w-full max-w-xs mx-auto" />
+      </div>
       </div>
     </div>
   )

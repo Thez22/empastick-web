@@ -36,14 +36,14 @@ header.header-scrolled {
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #7a9e2d;
+  color: #AECC42;
   margin: 0 0 12px;
 }
 
 .hero-title {
   font-size: clamp(2.5rem, 6vw, 3.75rem);
   font-weight: 700;
-  color: #064e3b;
+  color: #6b7c20;
   margin: 0 0 20px;
   line-height: 1.1;
   letter-spacing: -0.02em;
@@ -58,8 +58,8 @@ header.header-scrolled {
 }
 
 .btn-cta-hero {
-  background: #064e3b;
-  color: white;
+  background: #AECC42;
+  color: #1a1d21;
   padding: 12px 24px;
   border: none;
   border-radius: 12px;
@@ -71,7 +71,7 @@ header.header-scrolled {
 }
 
 .btn-cta-hero:hover {
-  background: #0b5b33;
+  background: #9bb83a;
 }
 
 .hero-gallery {
@@ -107,7 +107,7 @@ header.header-scrolled {
 
 .split-content h2 {
   font-size: 2.5rem;
-  color: #064e3b;
+  color: #6b7c20;
   margin-bottom: 15px;
   font-weight: 600;
 }

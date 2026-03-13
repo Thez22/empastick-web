@@ -73,8 +73,8 @@ export default function Connexion() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-[#f8f7f4]">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
-        <Link to="/" className="block mb-6">
-          <img src="/images/empastick.png" alt="Empastick" className="h-10 w-auto" />
+        <Link to="/" className="block mb-6 flex justify-center">
+          <img src="/favicon.jpg" alt="Empastick" className="h-12 w-auto object-contain" />
         </Link>
         <h1 className="text-2xl font-semibold text-[#1a1d21] mb-1">CONNEXION</h1>
         <p className="text-text-muted text-sm mb-6">

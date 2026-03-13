@@ -84,6 +84,9 @@ export default function Inscription() {
   return (
     <div className="min-h-screen py-12 px-4 bg-[#f8f7f4]">
       <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-lg p-8">
+        <Link to="/" className="block mb-6 flex justify-center">
+          <img src="/favicon.jpg" alt="Empastick" className="h-12 w-auto object-contain" />
+        </Link>
         <h1 className="text-2xl font-semibold text-[#1a1d21] mb-1">Créer un compte</h1>
         <p className="text-text-muted text-sm mb-6">
           {state?.requireAuth

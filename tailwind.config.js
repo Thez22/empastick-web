@@ -4,9 +4,9 @@ export default {
   theme: {
     extend: {
       colors: {
-        cta: '#0b5b33',
-        'cta-hover': '#064226',
-        'brand-green': '#7a9e2d',
+        cta: '#AECC42',
+        'cta-hover': '#9bb83a',
+        'brand-green': '#AECC42',
         'dark-green': '#064e3b',
         'accent-orange': '#EB5E4E',
         'text-muted': '#5c6370',
